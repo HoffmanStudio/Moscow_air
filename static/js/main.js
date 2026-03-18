@@ -851,23 +851,3 @@ async function submitSensorForm(e, api) {
         showNotification('Ошибка отправки данных', 'error');
     }
 }
-
-// ==================== РЕДАКТИРОВАНИЕ ДАТЧИКА ====================
-function editSensor(sensorId) {
-    const sensor = sensorsData.find(s => s.sensor_id === sensorId);
-    if (!sensor) return;
-    
-    const formContainer = document.getElementById('sensor-form-container');
-    const formTitle = document.getElementById('form-title');
-    const submitBtn = document.getElementById('submit-btn');
-    
-    if (formContainer) {
-        formTitle.textContent = 'Редактировать датчик';
-        submitBtn.textContent = 'Обновить данные';
-        formContainer.style.display = 'block';
-    }
-    
-    // Заполняем форму
-    document.getElementById('sensor-id').value = sensor.sensor_id;
-    document.getElementById('sensor-name').value = sensor.sensor_name || '';
-    document.getElementById('s
