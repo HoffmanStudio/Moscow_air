@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Moscow Air - Мониторинг качества воздуха</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 400;
+            color: #fff;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .container {
+            width: 1400px;
+            max-width: 90%;
+            margin: 0 auto;
+        }
+
+        header {
+            padding: 25px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: transparent;
+            backdrop-filter: none;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: none;
+        }
+
+        header .logo {
+            text-transform: uppercase;
+            font-size: 28px;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: 2px;
+        }
+
+        header nav {
+            width: 65%;
+        }
+
+        header nav ul {
+            list-style: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header nav ul li {
+            display: inline-block;
+        }
+
+        header nav ul li .nav-link {
+            color: #fff;
+            padding: 10px 18px;
+            display: inline-block;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            font-weight: 500;
+            border-radius: 5px;
+            font-size: 15px;
+        }
+
+        header nav ul li:not(.btn) .nav-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        header nav ul li.btn a {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px 22px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            color: #000;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        header nav ul li.btn a:hover {
+            background: rgba(255, 255, 255, 1);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 255, 255, 0.3);
+        }
+
+        .weather-container {
+            padding: 30px 0;
+            position: relative;
+        }
+
+        .weather-container input[type="radio"] {
+            display: none;
+        }
+
+        .slides-container {
+            position: relative;
+            width: 100%;
+            max-width: 1100px;
+            height: 550px;
+            margin: 0 auto 30px;
+            overflow: hidden;
+            border-radius: 20px;
+            background: rgba(43, 39, 39, 0.7);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all 0.5s ease-in-out;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 30px;
+        }
+
+        .slide > div {
+            width: 100%;
+            max-width: 750px;
+            text-align: center;
+        }
+
+        .slide h2 {
+            font-size: 30px;
+            margin-bottom: 25px;
+            color: #fff;
+            font-weight: 600;
+        }
+
+        .weather-card, .humidity-card, .no2-card, .co2-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 18px;
+            padding: 35px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .temperature, .humidity-level, .no2-value, .co2-value {
+            font-size: 70px;
+            font-weight: 700;
+            margin: 15px 0;
+            background: linear-gradient(45deg, #2196F3, #4CAF50);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .conditions, .humidity-status, .no2-status, .co2-status {
+            font-size: 20px;
+            color: #ccc;
+            margin-bottom: 25px;
+        }
+
+        .details {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .detail-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 18px;
+            border-radius: 10px;
+            text-align: left;
+        }
+
+        .detail-item .label {
+            color: #888;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .detail-item .value {
+            font-size: 20px;
+            font-weight: 600;
+            display: block;
+            margin-top: 5px;
+        }
+
+        .humidity-chart {
+            width: 100%;
+            height: 35px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 18px;
+            margin: 25px 0;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .chart-bar {
+            width: 75%;
+            height: 100%;
+            border-radius: 18px;
+            transition: all 0.3s ease;
+        }
+
+        .no2-scale, .co2-scale {
+            height: 35px;
+            background: linear-gradient(90deg, #4CAF50, #FF9800, #F44336);
+            border-radius: 18px;
+            margin: 25px 0;
+            position: relative;
+        }
+
+        .scale-mark {
+            position: absolute;
+            top: 40px;
+            font-size: 11px;
+            color: #888;
+        }
+
+        .scale-indicator {
+            position: absolute;
+            top: -8px;
+            width: 4px;
+            height: 50px;
+            background: #fff;
+            border-radius: 2px;
+        }
+
+        #slide1:checked ~ .slides-container .slide-1,
+        #slide2:checked ~ .slides-container .slide-2,
+        #slide3:checked ~ .slides-container .slide-3,
+        #slide4:checked ~ .slides-container .slide-4 {
+            opacity: 1;
+            transform: translateX(0);
+            z-index: 1;
+        }
+        
+        .update-time {
+            text-align: center;
+            margin-top: 20px;
+            color: #888;
+            font-size: 14px;
+        }
+        
+        .status-good {
+            color: #4CAF50;
+        }
+        
+        .status-moderate {
+            color: #FF9800;
+        }
+        
+        .status-bad {
+            color: #F44336;
+        }
+        
+        .status-danger {
+            color: #9C27B0;
+        }
+    </style>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+<body>
+    <div class="wrapper">
+        <header class="container">
+            <span class="logo">Moscow Air</span>
+            <nav>
+                <ul>
+                    <li><label for="slide1" class="nav-link">Углеводородные газы</label></li>
+                    <li><label for="slide2" class="nav-link">Содержание пыли</label></li>
+                    <li><label for="slide3" class="nav-link">Содержание NO₂</label></li>
+                    <li><label for="slide4" class="nav-link">Содержание CO₂</label></li>
+                    <li class="btn"><a href="#" id="map-btn">Карта</a></li>
+                </ul>
+            </nav>
+        </header>
+        
+        <div class="weather-container">
+            <input type="radio" name="slider" id="slide1" checked>
+            <input type="radio" name="slider" id="slide2">
+            <input type="radio" name="slider" id="slide3">
+            <input type="radio" name="slider" id="slide4">
+            
+            <div class="slides-container">
+                <!-- Слайд 1: Углеводородные газы -->
+                <div class="slide slide-1">
+                    <div class="weather-info">
+                        <h2>Содержание углеводородных газов</h2>
+                        <div class="weather-card">
+                            <div class="temperature" id="hydrocarbon-range">2.2 - 5.2 ppmv</div>
+                            <div class="conditions" id="hydrocarbon-status">Загрузка...</div>
+                            <div class="details">
+                                <div class="detail-item">
+                                    <span class="label">Метан (CH₄):</span>
+                                    <span class="value" id="methane-value">-</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="label">Бензол (C₆H₆):</span>
+                                    <span class="value" id="benzene-value">-</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="label">Формальдегид (CH₂O):</span>
+                                    <span class="value" id="formaldehyde-value">-</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Слайд 2: Содержание пыли -->
+                <div class="slide slide-2">
+                    <div class="humidity-info">
+                        <h2>Содержание пыли</h2>
+                        <div class="humidity-card">
+                            <div class="humidity-level" id="dust-value">0</div>
+                            <div class="humidity-status" id="dust-status">Загрузка...</div>
+                            <div class="humidity-chart">
+                                <div class="chart-bar" id="dust-bar" style="width: 0%; background: #4CAF50;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Слайд 3: NO₂ -->
+                <div class="slide slide-3">
+                    <div class="no2-info">
+                        <h2>Содержание NO₂</h2>
+                        <div class="no2-card">
+                            <div class="no2-value" id="no2-value">0</div>
+                            <div class="no2-status" id="no2-status">Загрузка...</div>
+                            <div class="no2-scale">
+                                <div class="scale-mark" style="left: 20%;">0-20 ppb</div>
+                                <div class="scale-mark" style="left: 40%;">20-40 ppb</div>
+                                <div class="scale-mark" style="left: 60%;">40-60 ppb</div>
+                                <div class="scale-mark" style="left: 80%;">60+ ppb</div>
+                                <div class="scale-indicator" id="no2-indicator" style="left: 20%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Слайд 4: CO₂ -->
+                <div class="slide slide-4">
+                    <div class="co2-info">
+                        <h2>Содержание CO₂</h2>
+                        <div class="co2-card">
+                            <div class="co2-value" id="co2-value">0</div>
+                            <div class="co2-status" id="co2-status">Загрузка...</div>
+                            <div class="co2-scale">
+                                <div class="scale-mark" style="left: 20%;">400-600 ppm</div>
+                                <div class="scale-mark" style="left: 40%;">600-800 ppm</div>
+                                <div class="scale-mark" style="left: 60%;">800-1000 ppm</div>
+                                <div class="scale-mark" style="left: 80%;">1000+ ppm</div>
+                                <div class="scale-indicator" id="co2-indicator" style="left: 20%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="update-time" id="update-time">
+                Последнее обновление: --:--:--
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Адрес вашего сервера
+        const API_URL = 'http://192.168.0.218:5000';
+        
+        // Загрузка данных
+        async function loadData() {
+            try {
+                const response = await fetch(`${API_URL}/api/latest-data`);
+                
+                if (!response.ok) {
+                    throw new Error('Сервер не отвечает');
+                }
+                
+                const data = await response.json();
+                
+                if (data && data.length > 0) {
+                    updateAllSlides(data[0]);
+                    document.getElementById('update-time').innerHTML = 
+                        `Последнее обновление: ${new Date().toLocaleTimeString()}`;
+                } else {
+                    useTestData();
+                }
+                
+            } catch (error) {
+                console.error('Ошибка:', error);
+                useTestData();
+            }
+        }
+        
+        // Тестовые данные
+        function useTestData() {
+            const testData = {
+                lpg_ppm: 12.5,
+                co_ppm: 4.2,
+                smoke_ppm: 8.7,
+                propane_ppm: 3.1,
+                alarm: false
+            };
+            updateAllSlides(testData);
+            document.getElementById('update-time').innerHTML = 
+                `Тестовые данные: ${new Date().toLocaleTimeString()}`;
+        }
+        
+        // Обновление всех слайдов
+        function updateAllSlides(data) {
+            // Слайд 1 - Углеводороды
+            const lpg = data.lpg_ppm || 0;
+            const co = data.co_ppm || 0;
+            const smoke = data.smoke_ppm || 0;
+            
+            document.getElementById('hydrocarbon-range').innerHTML = 
+                `${(lpg * 0.2).toFixed(1)} - ${(lpg * 0.5).toFixed(1)} ppmv`;
+            
+            const status1 = document.getElementById('hydrocarbon-status');
+            if (lpg < 10) {
+                status1.innerHTML = 'Хорошо';
+                status1.className = 'conditions status-good';
+            } else if (lpg < 20) {
+                status1.innerHTML = 'Удовлетворительно';
+                status1.className = 'conditions status-moderate';
+            } else if (lpg < 30) {
+                status1.innerHTML = 'Плохо';
+                status1.className = 'conditions status-bad';
+            } else {
+                status1.innerHTML = 'ОПАСНО!';
+                status1.className = 'conditions status-danger';
+            }
+            
+            document.getElementById('methane-value').innerHTML = 
+                `${(co * 0.5).toFixed(1)} - ${(co).toFixed(1)} ppm`;
+            document.getElementById('benzene-value').innerHTML = 
+                `${(smoke * 0.3).toFixed(1)} - ${(smoke * 0.8).toFixed(1)} мкг/м³`;
+            document.getElementById('formaldehyde-value').innerHTML = 
+                `${(lpg * 0.1).toFixed(1)} - ${(lpg * 0.3).toFixed(1)} мкг/м³`;
+            
+            // Слайд 2 - Пыль
+            const dust = (smoke * 2).toFixed(1);
+            document.getElementById('dust-value').innerHTML = dust + ' мкг/м³';
+            
+            const status2 = document.getElementById('dust-status');
+            const dustBar = document.getElementById('dust-bar');
+            const dustNum = parseFloat(dust);
+            
+            if (dustNum < 10) {
+                status2.innerHTML = 'Хорошо';
+                status2.className = 'humidity-status status-good';
+                dustBar.style.background = '#4CAF50';
+            } else if (dustNum < 20) {
+                status2.innerHTML = 'Удовлетворительно';
+                status2.className = 'humidity-status status-moderate';
+                dustBar.style.background = '#FF9800';
+            } else if (dustNum < 30) {
+                status2.innerHTML = 'Плохо';
+                status2.className = 'humidity-status status-bad';
+                dustBar.style.background = '#F44336';
+            } else {
+                status2.innerHTML = 'ОПАСНО!';
+                status2.className = 'humidity-status status-danger';
+                dustBar.style.background = '#9C27B0';
+            }
+            
+            const percentage = Math.min((dustNum / 50) * 100, 100);
+            dustBar.style.width = percentage + '%';
+            
+            // Слайд 3 - NO₂
+            const no2 = (co * 5).toFixed(0);
+            document.getElementById('no2-value').innerHTML = no2 + ' ppb';
+            
+            const status3 = document.getElementById('no2-status');
+            const no2Num = parseInt(no2);
+            
+            if (no2Num < 20) {
+                status3.innerHTML = 'Хорошо';
+                status3.className = 'no2-status status-good';
+            } else if (no2Num < 40) {
+                status3.innerHTML = 'Удовлетворительно';
+                status3.className = 'no2-status status-moderate';
+            } else if (no2Num < 60) {
+                status3.innerHTML = 'Плохо';
+                status3.className = 'no2-status status-bad';
+            } else {
+                status3.innerHTML = 'ОПАСНО!';
+                status3.className = 'no2-status status-danger';
+            }
+            
+            const no2Position = Math.min((no2Num / 80) * 100, 95);
+            document.getElementById('no2-indicator').style.left = no2Position + '%';
+            
+            // Слайд 4 - CO₂
+            const propane = data.propane_ppm || 0;
+            const co2 = (propane * 200 + 400).toFixed(0);
+            document.getElementById('co2-value').innerHTML = co2 + ' ppm';
+            
+            const status4 = document.getElementById('co2-status');
+            const co2Num = parseInt(co2);
+            
+            if (co2Num < 600) {
+                status4.innerHTML = 'Хорошо';
+                status4.className = 'co2-status status-good';
+            } else if (co2Num < 800) {
+                status4.innerHTML = 'Удовлетворительно';
+                status4.className = 'co2-status status-moderate';
+            } else if (co2Num < 1000) {
+                status4.innerHTML = 'Плохо';
+                status4.className = 'co2-status status-bad';
+            } else {
+                status4.innerHTML = 'ОПАСНО!';
+                status4.className = 'co2-status status-danger';
+            }
+            
+            const co2Position = Math.min(((co2Num - 400) / 800) * 100, 95);
+            document.getElementById('co2-indicator').style.left = co2Position + '%';
+        }
+        
+        
+        // Загружаем сразу
+        loadData();
+        
+        // Обновляем каждые 5 секунд
+        setInterval(loadData, 5000);
+    </script>
+</body>
+</html>
